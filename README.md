@@ -1,4 +1,24 @@
-# Getting Started with Create React App
+# ALANKRITA - The Art of Adornment
+
+An elegant React-based boutique application featuring fashion and accessories.
+
+## Tech Stack
+
+- **React 18** - Modern React with hooks
+- **Redux Toolkit** - State management
+- **Material UI** - UI component library
+- **React Router** - Client-side routing
+- **TypeScript** - Type safety
+
+## Features
+
+- **Product Catalog** - Browse elegant fashion items and accessories
+- **Shopping Cart** - Add items, adjust quantities, view totals
+- **User Authentication** - Login system with demo mode
+- **Checkout Process** - Multi-step checkout with shipping information
+- **Responsive Design** - Works on mobile, tablet, and desktop
+
+## Getting Started
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
