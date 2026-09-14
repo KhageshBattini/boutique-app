@@ -18,9 +18,10 @@ import {
   Card,
   CardContent,
   ListItemAvatar,
-  Avatar
+  Avatar,
+  Snackbar
 } from '@mui/material';
-import { Delete as DeleteIcon, Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Add as AddIcon, Remove as RemoveIcon, Close as CloseIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { removeFromCart, updateQuantity, clearCart } from '../store/slices/cartSlice';
@@ -30,7 +31,7 @@ interface ShippingInfo {
   address: string;
   city: string;
   zipCode: string;
-  country: string;
+  mobileNumber: string;
 }
 
 const Checkout: React.FC = () => {
@@ -44,9 +45,10 @@ const Checkout: React.FC = () => {
     address: '',
     city: '',
     zipCode: '',
-    country: '',
+    mobileNumber: '',
   });
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -78,8 +80,8 @@ const Checkout: React.FC = () => {
     if (activeStep === 1) {
       // Validate shipping info
       if (!shippingInfo.fullName || !shippingInfo.address || !shippingInfo.city || 
-          !shippingInfo.zipCode || !shippingInfo.country) {
-        alert('Please fill in all shipping information');
+          !shippingInfo.zipCode || !shippingInfo.mobileNumber) {
+        setError('Please fill in all shipping information');
         return;
       }
     }
@@ -215,7 +217,7 @@ const Checkout: React.FC = () => {
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
               <Button variant="contained" onClick={handleNext}>
-                Next: Shipping Information
+                Shipping Information
               </Button>
             </Box>
           </Box>
@@ -265,9 +267,9 @@ const Checkout: React.FC = () => {
               />
               <TextField
                 fullWidth
-                label="Country"
-                name="country"
-                value={shippingInfo.country}
+                label="Mobile Number"
+                name="mobileNumber"
+                value={shippingInfo.mobileNumber}
                 onChange={handleShippingChange}
                 margin="normal"
                 required
@@ -279,7 +281,7 @@ const Checkout: React.FC = () => {
                 Back
               </Button>
               <Button variant="contained" onClick={handleNext}>
-                Next: Confirmation
+                Confirmation
               </Button>
             </Box>
           </Box>
@@ -300,7 +302,7 @@ const Checkout: React.FC = () => {
                   {shippingInfo.fullName}<br />
                   {shippingInfo.address}<br />
                   {shippingInfo.city}, {shippingInfo.zipCode}<br />
-                  {shippingInfo.country}
+                  {shippingInfo.mobileNumber}
                 </Typography>
               </CardContent>
             </Card>
@@ -325,6 +327,29 @@ const Checkout: React.FC = () => {
           </Box>
         )}
       </Paper>
+
+      <Snackbar
+        open={error !== null}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          severity="error"
+          onClose={() => setError(null)}
+          action={
+            <IconButton
+              size="small"
+              color="inherit"
+              onClick={() => setError(null)}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        >
+          {error}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
