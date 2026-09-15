@@ -1,12 +1,14 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { CssBaseline, AppBar, Toolbar, Typography, IconButton, Badge, Box, Button } from '@mui/material';
-import { ShoppingCart as ShoppingCartIcon, Login as LoginIcon, Logout as LogoutIcon } from '@mui/icons-material';
+import { CssBaseline, AppBar, Toolbar, Typography, IconButton, Badge, Box, Button, Tooltip, Avatar } from '@mui/material';
+import { ShoppingCart as ShoppingCartIcon, Login as LoginIcon, AccountCircle } from '@mui/icons-material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { store } from './store';
 import Home from './components/Home';
 import Login from './components/Login';
+import Signup from './components/Signup';
+import Account from './components/Account';
 import Checkout from './components/Checkout';
 import Collections from './components/Collections';
 import NewArrivals from './components/NewArrivals';
@@ -14,7 +16,6 @@ import OurStory from './components/OurStory';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import { useAppSelector, useAppDispatch } from './store/hooks';
-import { logout } from './store/slices/authSlice';
 
 const theme = createTheme({
   palette: {
@@ -42,11 +43,6 @@ function Navigation() {
   const { items } = useAppSelector((state) => state.cart);
 
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/login');
-  };
 
   return (
     <AppBar position="static" sx={{ backgroundColor: '#967bb6' }}>
@@ -79,20 +75,29 @@ function Navigation() {
           
           {isAuthenticated ? (
             <>
-              <Typography variant="body2" sx={{ mr: 1 }}>
-                {user?.name}
-              </Typography>
-              <Button 
-                color="inherit" 
-                startIcon={<LogoutIcon />}
-                onClick={handleLogout}
-              >
-                Logout
-              </Button>
+              <Tooltip title={`${user?.firstName} ${user?.lastName}`} arrow>
+                <IconButton
+                  size="large"
+                  edge="end"
+                  color="inherit"
+                  sx={{ mr: 1 }}
+                  onClick={() => navigate('/account')}
+                >
+                  {user?.profilePicture ? (
+                    <Avatar
+                      src={user.profilePicture}
+                      alt={`${user?.firstName} ${user?.lastName}`}
+                      sx={{ width: 32, height: 32 }}
+                    />
+                  ) : (
+                    <AccountCircle sx={{ fontSize: 32 }} />
+                  )}
+                </IconButton>
+              </Tooltip>
             </>
           ) : (
-            <Button 
-              color="inherit" 
+            <Button
+              color="inherit"
               startIcon={<LoginIcon />}
               onClick={() => navigate('/login')}
             >
@@ -125,6 +130,8 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/account" element={<Account />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/collections" element={<Collections />} />
             <Route path="/new-arrivals" element={<NewArrivals />} />

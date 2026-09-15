@@ -3,7 +3,9 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface User {
   id: string;
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  profilePicture?: string;
 }
 
 interface AuthState {
@@ -38,6 +40,25 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    signupStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    signupSuccess: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
+      state.loading = false;
+      state.error = null;
+    },
+    signupFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    updateProfile: (state, action: PayloadAction<Partial<User>>) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+      }
+    },
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
@@ -47,5 +68,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout } = authSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, signupStart, signupSuccess, signupFailure, updateProfile, logout } = authSlice.actions;
 export default authSlice.reducer;

@@ -41,7 +41,7 @@ const Checkout: React.FC = () => {
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   const [activeStep, setActiveStep] = useState(0);
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
-    fullName: user?.name || '',
+    fullName: user ? `${user.firstName} ${user.lastName}` : '',
     address: '',
     city: '',
     zipCode: '',

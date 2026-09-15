@@ -10,11 +10,14 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../store/hooks';
-import { loginStart, loginSuccess, loginFailure } from '../store/slices/authSlice';
+import { signupStart, signupSuccess, signupFailure } from '../store/slices/authSlice';
 
-const Login: React.FC = () => {
+const Signup: React.FC = () => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -23,33 +26,37 @@ const Login: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    if (!email || !password) {
+    if (!firstName || !lastName || !email || !password || !confirmPassword) {
       setError('Please fill in all fields');
       return;
     }
 
-    dispatch(loginStart());
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
+    dispatch(signupStart());
 
     // Simulate API call
     setTimeout(() => {
-      // Demo authentication - accept any email/password for demo purposes
-      if (email.includes('@') && password.length >= 6) {
-        const emailName = email.split('@')[0];
-        // Split email name into first and last name for demo purposes
-        const nameParts = emailName.split('.');
-        const firstName = nameParts[0] || emailName;
-        const lastName = nameParts[1] || 'User';
-        
-        dispatch(loginSuccess({
+      // Demo authentication - accept any valid data for demo purposes
+      if (email.includes('@')) {
+        dispatch(signupSuccess({
           id: '1',
           email,
-          firstName: firstName.charAt(0).toUpperCase() + firstName.slice(1),
-          lastName: lastName.charAt(0).toUpperCase() + lastName.slice(1),
+          firstName,
+          lastName,
         }));
         navigate('/');
       } else {
-        const errorMsg = 'Invalid email or password';
-        dispatch(loginFailure(errorMsg));
+        const errorMsg = 'Invalid email address';
+        dispatch(signupFailure(errorMsg));
         setError(errorMsg);
       }
     }, 1000);
@@ -67,10 +74,10 @@ const Login: React.FC = () => {
           </Typography>
         </Box>
         <Typography variant="h5" component="h2" gutterBottom align="center" sx={{ mt: 3 }}>
-          Welcome Back
+          Create Account
         </Typography>
         <Typography variant="body1" color="text.secondary" align="center" sx={{ mb: 3 }}>
-          Sign in to your account
+          Join us for exclusive jewelry collections
         </Typography>
 
         {error && (
@@ -84,11 +91,33 @@ const Login: React.FC = () => {
             margin="normal"
             required
             fullWidth
+            id="firstName"
+            label="First Name"
+            name="firstName"
+            autoComplete="given-name"
+            autoFocus
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="lastName"
+            label="Last Name"
+            name="lastName"
+            autoComplete="family-name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
             id="email"
             label="Email Address"
             name="email"
             autoComplete="email"
-            autoFocus
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -100,9 +129,21 @@ const Login: React.FC = () => {
             label="Password"
             type="password"
             id="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="confirmPassword"
+            label="Confirm Password"
+            type="password"
+            id="confirmPassword"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
           />
           <Button
             type="submit"
@@ -111,16 +152,16 @@ const Login: React.FC = () => {
             sx={{ mt: 3, mb: 2, backgroundColor: '#967bb6', '&:hover': { backgroundColor: '#6746c3' } }}
             disabled={false}
           >
-            Sign In
+            Sign Up
           </Button>
-          <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 2 }}>
-            Don't have an account?{' '}
+          <Typography variant="body2" color="text.secondary" align="center">
+            Already have an account?{' '}
             <Button
               color="primary"
-              onClick={() => navigate('/signup')}
+              onClick={() => navigate('/login')}
               sx={{ textTransform: 'none' }}
             >
-              Sign Up
+              Sign In
             </Button>
           </Typography>
         </Box>
@@ -129,4 +170,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Signup;
