@@ -1,8 +1,32 @@
-import React from 'react';
-import { Box, Container, Typography, Link, Divider, IconButton } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Container, Typography, Link, Divider, IconButton, TextField, Button, Snackbar, Alert } from '@mui/material';
 import { Instagram, Facebook, Twitter, Pinterest } from '@mui/icons-material';
 
 const Footer: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [showToast, setShowToast] = useState(false);
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !email.includes('@')) {
+      return;
+    }
+
+    // Simulate API call for future integration
+    console.log('Subscribing email:', email);
+    
+    // Clear the email field
+    setEmail('');
+    
+    // Show toast message
+    setShowToast(true);
+  };
+
+  const handleCloseToast = () => {
+    setShowToast(false);
+  };
+
   return (
     <Box 
       component="footer" 
@@ -116,6 +140,62 @@ const Footer: React.FC = () => {
 
         <Divider sx={{ my: 4 }} />
 
+        {/* Newsletter Subscription */}
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h6" gutterBottom sx={{ color: '#967bb6', fontWeight: 'bold', textAlign: 'center' }}>
+            Subscribe to Our Newsletter
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
+            Get exclusive offers, new arrivals, and styling tips delivered to your inbox.
+          </Typography>
+          <Box 
+            component="form" 
+            onSubmit={handleSubscribe}
+            sx={{ 
+              display: 'flex', 
+              gap: 2, 
+              maxWidth: 500, 
+              mx: 'auto',
+              flexDirection: { xs: 'column', sm: 'row' }
+            }}
+          >
+            <TextField
+              fullWidth
+              placeholder="Enter your email address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              size="small"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#967bb6',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#967bb6',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#967bb6',
+                  },
+                },
+              }}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ 
+                backgroundColor: '#967bb6',
+                '&:hover': { backgroundColor: '#6746c3' },
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Subscribe
+            </Button>
+          </Box>
+        </Box>
+
+        <Divider sx={{ my: 4 }} />
+
         {/* Copyright */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
           <Typography variant="body2" color="text.secondary">
@@ -134,6 +214,22 @@ const Footer: React.FC = () => {
           </Box>
         </Box>
       </Container>
+
+      {/* Toast Notification */}
+      <Snackbar
+        open={showToast}
+        autoHideDuration={3000}
+        onClose={handleCloseToast}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseToast} 
+          severity="success"
+          sx={{ backgroundColor: '#967bb6', color: 'white' }}
+        >
+          Thanks for subscription!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

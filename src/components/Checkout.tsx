@@ -19,7 +19,11 @@ import {
   CardContent,
   ListItemAvatar,
   Avatar,
-  Snackbar
+  Snackbar,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
 } from '@mui/material';
 import { Delete as DeleteIcon, Add as AddIcon, Remove as RemoveIcon, Close as CloseIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +35,7 @@ interface ShippingInfo {
   address: string;
   city: string;
   zipCode: string;
+  countryCode: string;
   mobileNumber: string;
 }
 
@@ -45,6 +50,7 @@ const Checkout: React.FC = () => {
     address: '',
     city: '',
     zipCode: '',
+    countryCode: '+91',
     mobileNumber: '',
   });
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -70,9 +76,19 @@ const Checkout: React.FC = () => {
   };
 
   const handleShippingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    
+    // Handle maxLength for specific fields
+    if (name === 'zipCode' && value.length > 6) {
+      return;
+    }
+    if (name === 'mobileNumber' && value.length > 10) {
+      return;
+    }
+    
     setShippingInfo({
       ...shippingInfo,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
@@ -80,12 +96,35 @@ const Checkout: React.FC = () => {
     if (activeStep === 1) {
       // Validate shipping info
       if (!shippingInfo.fullName || !shippingInfo.address || !shippingInfo.city || 
-          !shippingInfo.zipCode || !shippingInfo.mobileNumber) {
+          !shippingInfo.zipCode || !shippingInfo.countryCode || !shippingInfo.mobileNumber) {
         setError('Please fill in all shipping information');
+        return;
+      }
+
+      // Validate ZIP code (6 digits)
+      if (!/^\d{6}$/.test(shippingInfo.zipCode)) {
+        setError('ZIP code must be exactly 6 digits');
+        return;
+      }
+
+      // Validate mobile number (10 digits)
+      if (!/^\d{10}$/.test(shippingInfo.mobileNumber)) {
+        setError('Mobile number must be exactly 10 digits');
         return;
       }
     }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const isFormValid = () => {
+    return (
+      shippingInfo.fullName.trim() !== '' &&
+      shippingInfo.address.trim() !== '' &&
+      shippingInfo.city.trim() !== '' &&
+      shippingInfo.countryCode.trim() !== '' &&
+      /^\d{6}$/.test(shippingInfo.zipCode) &&
+      /^\d{10}$/.test(shippingInfo.mobileNumber)
+    );
   };
 
   const handleBack = () => {
@@ -264,23 +303,46 @@ const Checkout: React.FC = () => {
                 onChange={handleShippingChange}
                 margin="normal"
                 required
+                error={shippingInfo.zipCode !== '' && !/^\d{6}$/.test(shippingInfo.zipCode)}
+                helperText={shippingInfo.zipCode !== '' && !/^\d{6}$/.test(shippingInfo.zipCode) ? 'ZIP code must be 6 digits' : ''}
               />
-              <TextField
-                fullWidth
-                label="Mobile Number"
-                name="mobileNumber"
-                value={shippingInfo.mobileNumber}
-                onChange={handleShippingChange}
-                margin="normal"
-                required
-              />
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+                <FormControl sx={{ minWidth: 120 }}>
+                  <InputLabel>Country Code</InputLabel>
+                  <Select
+                    value={shippingInfo.countryCode}
+                    label="Country Code"
+                    onChange={(e) => setShippingInfo({ ...shippingInfo, countryCode: e.target.value })}
+                  >
+                    <MenuItem value="+91">+91 (India)</MenuItem>
+                    <MenuItem value="+1">+1 (USA)</MenuItem>
+                    <MenuItem value="+44">+44 (UK)</MenuItem>
+                    <MenuItem value="+61">+61 (Australia)</MenuItem>
+                    <MenuItem value="+971">+971 (UAE)</MenuItem>
+                  </Select>
+                </FormControl>
+                <TextField
+                  fullWidth
+                  label="Mobile Number"
+                  name="mobileNumber"
+                  value={shippingInfo.mobileNumber}
+                  onChange={handleShippingChange}
+                  required
+                  error={shippingInfo.mobileNumber !== '' && !/^\d{10}$/.test(shippingInfo.mobileNumber)}
+                  helperText={shippingInfo.mobileNumber !== '' && !/^\d{10}$/.test(shippingInfo.mobileNumber) ? 'Mobile number must be 10 digits' : ''}
+                />
+              </Box>
             </Box>
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
               <Button onClick={handleBack}>
                 Back
               </Button>
-              <Button variant="contained" onClick={handleNext}>
+              <Button 
+                variant="contained" 
+                onClick={handleNext}
+                disabled={!isFormValid()}
+              >
                 Confirmation
               </Button>
             </Box>
@@ -302,7 +364,7 @@ const Checkout: React.FC = () => {
                   {shippingInfo.fullName}<br />
                   {shippingInfo.address}<br />
                   {shippingInfo.city}, {shippingInfo.zipCode}<br />
-                  {shippingInfo.mobileNumber}
+                  {shippingInfo.countryCode} {shippingInfo.mobileNumber}
                 </Typography>
               </CardContent>
             </Card>

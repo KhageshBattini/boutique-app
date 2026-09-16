@@ -6,7 +6,9 @@ import {
   Paper,
   TextField,
   Button,
-  Divider
+  Divider,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { LocationOn, Phone, AccessTime, Email } from '@mui/icons-material';
 
@@ -17,6 +19,8 @@ const Contact: React.FC = () => {
     subject: '',
     message: ''
   });
+  const [subscribeEmail, setSubscribeEmail] = useState('');
+  const [showToast, setShowToast] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -30,6 +34,27 @@ const Contact: React.FC = () => {
     // Handle form submission
     alert('Thank you for your message! We will get back to you soon.');
     setFormData({ name: '', email: '', subject: '', message: '' });
+  };
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!subscribeEmail || !subscribeEmail.includes('@')) {
+      return;
+    }
+
+    // Simulate API call for future integration
+    console.log('Subscribing email:', subscribeEmail);
+    
+    // Clear the email field
+    setSubscribeEmail('');
+    
+    // Show toast message
+    setShowToast(true);
+  };
+
+  const handleCloseToast = () => {
+    setShowToast(false);
   };
 
   return (
@@ -175,13 +200,21 @@ const Contact: React.FC = () => {
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
           Be the first to know about new collections, exclusive offers, and fashion tips.
         </Typography>
-        <Box sx={{ display: 'flex', gap: 2, maxWidth: 500, mx: 'auto' }}>
+        <Box 
+          component="form"
+          onSubmit={handleSubscribe}
+          sx={{ display: 'flex', gap: 2, maxWidth: 500, mx: 'auto' }}
+        >
           <TextField
             fullWidth
             placeholder="Enter your email"
             size="small"
+            type="email"
+            value={subscribeEmail}
+            onChange={(e) => setSubscribeEmail(e.target.value)}
           />
           <Button 
+            type="submit"
             variant="contained"
             sx={{ backgroundColor: '#967bb6', '&:hover': { backgroundColor: '#6746c3' } }}
           >
@@ -189,6 +222,22 @@ const Contact: React.FC = () => {
           </Button>
         </Box>
       </Paper>
+
+      {/* Toast Notification */}
+      <Snackbar
+        open={showToast}
+        autoHideDuration={3000}
+        onClose={handleCloseToast}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseToast} 
+          severity="success"
+          sx={{ backgroundColor: '#967bb6', color: 'white' }}
+        >
+          Thanks for subscription!
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
