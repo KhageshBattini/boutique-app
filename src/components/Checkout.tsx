@@ -274,7 +274,7 @@ const Checkout: React.FC = () => {
                 name="fullName"
                 value={shippingInfo.fullName}
                 onChange={handleShippingChange}
-                margin="normal"
+                sx={{ mb: 2 }}
                 required
               />
               <TextField
@@ -283,7 +283,7 @@ const Checkout: React.FC = () => {
                 name="address"
                 value={shippingInfo.address}
                 onChange={handleShippingChange}
-                margin="normal"
+                sx={{ mb: 2 }}
                 required
               />
               <TextField
@@ -292,7 +292,7 @@ const Checkout: React.FC = () => {
                 name="city"
                 value={shippingInfo.city}
                 onChange={handleShippingChange}
-                margin="normal"
+                sx={{ mb: 2 }}
                 required
               />
               <TextField
@@ -301,13 +301,13 @@ const Checkout: React.FC = () => {
                 name="zipCode"
                 value={shippingInfo.zipCode}
                 onChange={handleShippingChange}
-                margin="normal"
+                sx={{ mb: 2 }}
                 required
                 error={shippingInfo.zipCode !== '' && !/^\d{6}$/.test(shippingInfo.zipCode)}
                 helperText={shippingInfo.zipCode !== '' && !/^\d{6}$/.test(shippingInfo.zipCode) ? 'ZIP code must be 6 digits' : ''}
               />
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                <FormControl sx={{ minWidth: 120 }}>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', mb: 2 }}>
+                <FormControl sx={{ minWidth: 120, flexShrink: 0 }}>
                   <InputLabel>Country Code</InputLabel>
                   <Select
                     value={shippingInfo.countryCode}
