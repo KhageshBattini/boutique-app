@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { CssBaseline, AppBar, Toolbar, Typography, IconButton, Badge, Box, Button, Tooltip, Avatar } from '@mui/material';
@@ -16,6 +16,8 @@ import OurStory from './components/OurStory';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import { useAppSelector, useAppDispatch } from './store/hooks';
+import { api } from './api';
+import { setError, setLoading, setProducts, Product } from './store/slices/productsSlice';
 
 const theme = createTheme({
   palette: {
@@ -122,6 +124,18 @@ function Navigation() {
 }
 
 function AppContent() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      dispatch(setLoading(true));
+      try { dispatch(setProducts(await api<Product[]>('/products'))); }
+      catch (err) { dispatch(setError(err instanceof Error ? err.message : 'Unable to load products')); }
+      finally { dispatch(setLoading(false)); }
+    };
+    loadProducts();
+  }, [dispatch]);
+
   return (
     <Router>
       <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>

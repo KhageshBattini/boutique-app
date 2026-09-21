@@ -29,6 +29,7 @@ import { Delete as DeleteIcon, Add as AddIcon, Remove as RemoveIcon, Close as Cl
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { removeFromCart, updateQuantity, clearCart } from '../store/slices/cartSlice';
+import { api } from '../api';
 
 interface ShippingInfo {
   fullName: string;
@@ -131,13 +132,16 @@ const Checkout: React.FC = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handlePlaceOrder = () => {
-    // Simulate order processing
-    setOrderSuccess(true);
-    dispatch(clearCart());
-    setTimeout(() => {
-      navigate('/');
-    }, 3000);
+  const handlePlaceOrder = async () => {
+    setError(null);
+    try {
+      await api('/orders', { method: 'POST', body: JSON.stringify({
+        items: items.map((item) => ({ productId: item.id, quantity: item.quantity })),
+        ...shippingInfo,
+      }) });
+      setOrderSuccess(true); dispatch(clearCart());
+      setTimeout(() => navigate('/'), 3000);
+    } catch (err) { setError(err instanceof Error ? err.message : 'Unable to place order'); }
   };
 
   if (items.length === 0 && !orderSuccess) {

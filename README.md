@@ -20,6 +20,17 @@ An elegant React-based boutique application featuring fashion and accessories.
 
 ## Getting Started
 
+## Backend and MySQL setup
+
+The frontend now uses a Java (Spring Boot) REST API in `backend/`. MySQL stores users, products, signed-in sessions, orders, and order items. The SQL migrations are in `backend/src/main/resources/db/migration`; Flyway runs them in order and records which ones have already run.
+
+1. Install Java 17 or newer, Maven, and either Docker Desktop or MySQL 8.
+2. In `backend/`, copy `.env.example` to `.env`, replace both example passwords, then run `docker compose up -d` to start MySQL. If you use an existing MySQL server, create the `alankrita` database and set `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD` instead.
+3. Start the API: `mvn spring-boot:run` from `backend/`. It listens on `http://localhost:8080` and applies the database migrations automatically.
+4. In a second terminal, run `npm start` from this project folder. Open `http://localhost:3000` and create an account.
+
+The browser keeps a temporary sign-in token in local storage. The API checks it for profile updates and orders; its database session expires after seven days. Product prices are recalculated by the server during checkout, so a browser cannot submit a different price.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

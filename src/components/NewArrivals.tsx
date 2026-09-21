@@ -1,13 +1,12 @@
 import React from 'react';
-import { Container, Typography, Box, Chip, Paper } from '@mui/material';
+import { Container, Typography, Box, Chip, Paper, Alert, CircularProgress } from '@mui/material';
 import ProductCard from './ProductCard';
 import { useAppSelector } from '../store/hooks';
 
 const NewArrivals: React.FC = () => {
-  const { items: products } = useAppSelector((state) => state.products);
+  const { items: products, loading, error } = useAppSelector((state) => state.products);
 
-  // For demo purposes, mark first 3 products as new arrivals
-  const newArrivals = products.slice(0, 3);
+  const newArrivals = products.filter((product) => product.newArrival);
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -38,6 +37,9 @@ const NewArrivals: React.FC = () => {
           Discover our latest additions to the collection
         </Typography>
       </Paper>
+
+      {loading && <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}><CircularProgress /></Box>}
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
       <Box sx={{ 
         display: 'grid', 

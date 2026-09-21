@@ -11,6 +11,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../store/hooks';
 import { signupStart, signupSuccess, signupFailure } from '../store/slices/authSlice';
+import { api } from '../api';
 
 const Signup: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -43,23 +44,15 @@ const Signup: React.FC = () => {
 
     dispatch(signupStart());
 
-    // Simulate API call
-    setTimeout(() => {
-      // Demo authentication - accept any valid data for demo purposes
-      if (email.includes('@')) {
-        dispatch(signupSuccess({
-          id: '1',
-          email,
-          firstName,
-          lastName,
-        }));
-        navigate('/');
-      } else {
-        const errorMsg = 'Invalid email address';
-        dispatch(signupFailure(errorMsg));
-        setError(errorMsg);
-      }
-    }, 1000);
+    try {
+      const response = await api<{ token: string; user: { id: number; email: string; firstName: string; lastName: string; profilePicture?: string } }>('/auth/register', { method: 'POST', body: JSON.stringify({ firstName, lastName, email, password }) });
+      localStorage.setItem('authToken', response.token);
+      dispatch(signupSuccess(response.user));
+      navigate('/');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unable to create account';
+      dispatch(signupFailure(message)); setError(message);
+    }
   };
 
   return (

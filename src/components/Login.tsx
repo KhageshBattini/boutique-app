@@ -11,6 +11,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../store/hooks';
 import { loginStart, loginSuccess, loginFailure } from '../store/slices/authSlice';
+import { api } from '../api';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -30,29 +31,15 @@ const Login: React.FC = () => {
 
     dispatch(loginStart());
 
-    // Simulate API call
-    setTimeout(() => {
-      // Demo authentication - accept any email/password for demo purposes
-      if (email.includes('@') && password.length >= 6) {
-        const emailName = email.split('@')[0];
-        // Split email name into first and last name for demo purposes
-        const nameParts = emailName.split('.');
-        const firstName = nameParts[0] || emailName;
-        const lastName = nameParts[1] || 'User';
-        
-        dispatch(loginSuccess({
-          id: '1',
-          email,
-          firstName: firstName.charAt(0).toUpperCase() + firstName.slice(1),
-          lastName: lastName.charAt(0).toUpperCase() + lastName.slice(1),
-        }));
-        navigate('/');
-      } else {
-        const errorMsg = 'Invalid email or password';
-        dispatch(loginFailure(errorMsg));
-        setError(errorMsg);
-      }
-    }, 1000);
+    try {
+      const response = await api<{ token: string; user: { id: number; email: string; firstName: string; lastName: string; profilePicture?: string } }>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+      localStorage.setItem('authToken', response.token);
+      dispatch(loginSuccess(response.user));
+      navigate('/');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unable to sign in';
+      dispatch(loginFailure(message)); setError(message);
+    }
   };
 
   return (

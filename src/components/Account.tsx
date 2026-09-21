@@ -14,6 +14,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { logout, updateProfile } from '../store/slices/authSlice';
+import { api } from '../api';
 import { Edit as EditIcon, CameraAlt as CameraIcon } from '@mui/icons-material';
 
 const Account: React.FC = () => {
@@ -42,7 +43,7 @@ const Account: React.FC = () => {
     setIsEditing(!isEditing);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setError('');
     setSuccess('');
 
@@ -56,19 +57,11 @@ const Account: React.FC = () => {
       return;
     }
 
-    // Simulate API call to update profile
-    dispatch(updateProfile({
-      firstName,
-      lastName,
-      email,
-      profilePicture,
-    }));
-
-    setSuccess('Profile updated successfully!');
-    setIsEditing(false);
-    
-    // Clear success message after 3 seconds
-    setTimeout(() => setSuccess(''), 3000);
+    try {
+      const updated = await api<{ id: number; email: string; firstName: string; lastName: string; profilePicture?: string }>('/auth/me', { method: 'PUT', body: JSON.stringify({ firstName, lastName, email, profilePicture }) });
+      dispatch(updateProfile(updated)); setSuccess('Profile updated successfully!'); setIsEditing(false);
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) { setError(err instanceof Error ? err.message : 'Unable to update profile'); }
   };
 
   const handleProfilePictureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,7 +88,9 @@ const Account: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await api<void>('/auth/logout', { method: 'POST' }).catch(() => undefined);
+    localStorage.removeItem('authToken');
     dispatch(logout());
     navigate('/login');
   };
