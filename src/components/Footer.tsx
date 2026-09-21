@@ -29,7 +29,7 @@ const Footer: React.FC = () => {
               The Art of Adornment
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Elegant fashion and accessories for the modern woman.
+              Beautiful sarees and elegant dresses for the modern woman.
             </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <IconButton size="small" sx={{ color: '#967bb6' }}>

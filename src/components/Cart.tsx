@@ -103,7 +103,7 @@ const Cart: React.FC<CartProps> = ({ open, onClose }) => {
                           <AddIcon fontSize="small" />
                         </IconButton>
                         <Typography variant="body2" sx={{ ml: 'auto' }}>
-                          ${(item.price * item.quantity).toFixed(2)}
+                          ₹{(item.price * item.quantity).toLocaleString('en-IN')}
                         </Typography>
                       </Box>
                     }
@@ -117,7 +117,7 @@ const Cart: React.FC<CartProps> = ({ open, onClose }) => {
           <Box sx={{ mt: 'auto', pt: 2 }}>
             <Divider sx={{ mb: 2 }} />
             <Typography variant="h6" sx={{ mb: 2 }}>
-              Total: ${total.toFixed(2)}
+              Total: ₹{total.toLocaleString('en-IN')}
             </Typography>
             <Button
               variant="contained"

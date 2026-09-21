@@ -12,46 +12,18 @@ interface Collection {
 
 const collections: Collection[] = [
   {
+    id: 'sarees',
+    name: 'Sarees',
+    description: 'Beautiful traditional sarees for every occasion',
+    image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&h=400&fit=crop',
+    itemCount: 15
+  },
+  {
     id: 'dresses',
     name: 'Dresses',
     description: 'Elegant dresses for every occasion',
     image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&h=400&fit=crop',
     itemCount: 12
-  },
-  {
-    id: 'accessories',
-    name: 'Accessories',
-    description: 'Complete your look with our accessories',
-    image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&h=400&fit=crop',
-    itemCount: 8
-  },
-  {
-    id: 'tops',
-    name: 'Tops & Blouses',
-    description: 'Stylish tops for modern women',
-    image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600&h=400&fit=crop',
-    itemCount: 15
-  },
-  {
-    id: 'outerwear',
-    name: 'Outerwear',
-    description: 'Stay warm and fashionable',
-    image: 'https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=600&h=400&fit=crop',
-    itemCount: 6
-  },
-  {
-    id: 'shoes',
-    name: 'Shoes',
-    description: 'Step out in style',
-    image: 'https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=600&h=400&fit=crop',
-    itemCount: 10
-  },
-  {
-    id: 'jewelry',
-    name: 'Jewelry',
-    description: 'Add sparkle to your ensemble',
-    image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600&h=400&fit=crop',
-    itemCount: 9
   }
 ];
 

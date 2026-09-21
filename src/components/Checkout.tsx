@@ -234,7 +234,7 @@ const Checkout: React.FC = () => {
                             <AddIcon fontSize="small" />
                           </IconButton>
                           <Typography variant="body2" sx={{ ml: 'auto' }}>
-                            ${(item.price * item.quantity).toFixed(2)}
+                            ₹{(item.price * item.quantity).toLocaleString('en-IN')}
                           </Typography>
                         </Box>
                       }
@@ -249,7 +249,7 @@ const Checkout: React.FC = () => {
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Typography variant="h6">Total:</Typography>
-                  <Typography variant="h6">${total.toFixed(2)}</Typography>
+                  <Typography variant="h6">₹{total.toLocaleString('en-IN')}</Typography>
                 </Box>
               </CardContent>
             </Card>
@@ -315,10 +315,6 @@ const Checkout: React.FC = () => {
                     onChange={(e) => setShippingInfo({ ...shippingInfo, countryCode: e.target.value })}
                   >
                     <MenuItem value="+91">+91 (India)</MenuItem>
-                    <MenuItem value="+1">+1 (USA)</MenuItem>
-                    <MenuItem value="+44">+44 (UK)</MenuItem>
-                    <MenuItem value="+61">+61 (Australia)</MenuItem>
-                    <MenuItem value="+971">+971 (UAE)</MenuItem>
                   </Select>
                 </FormControl>
                 <TextField
@@ -374,7 +370,7 @@ const Checkout: React.FC = () => {
                 <Typography variant="subtitle1" gutterBottom>
                   Order Total:
                 </Typography>
-                <Typography variant="h5">${total.toFixed(2)}</Typography>
+                <Typography variant="h5">₹{total.toLocaleString('en-IN')}</Typography>
               </CardContent>
             </Card>
 

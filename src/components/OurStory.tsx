@@ -25,7 +25,7 @@ const OurStory: React.FC = () => {
         </Typography>
 
         <Typography variant="body1" sx={{ mb: 3 }}>
-          Founded with a passion for fashion and an eye for detail, ALANKRITA has grown from a small boutique to a beloved destination for women seeking sophisticated, high-quality apparel and accessories. Each piece in our collection is carefully curated to reflect the latest trends while maintaining the classic elegance that defines our brand.
+          Founded with a passion for traditional craftsmanship and contemporary elegance, ALANKRITA has grown from a small boutique to a beloved destination for women seeking beautiful sarees and elegant dresses. Each piece in our collection is carefully curated to celebrate the timeless beauty of traditional wear while embracing modern style.
         </Typography>
 
         <Typography variant="body1" sx={{ mb: 3 }}>
@@ -33,7 +33,7 @@ const OurStory: React.FC = () => {
         </Typography>
 
         <Typography variant="body1" sx={{ mb: 3 }}>
-          From elegant dresses and statement accessories to comfortable everyday wear, our collections are designed to cater to the diverse needs of the modern woman. We work with skilled artisans and premium materials to ensure that every piece meets our exacting standards of quality and style.
+          From elegant silk sarees to sophisticated dresses, our collections are designed to celebrate the diverse needs of the modern woman. We work with skilled artisans and premium materials to ensure that every piece meets our exacting standards of quality and style.
         </Typography>
 
         <Divider sx={{ my: 4 }} />
