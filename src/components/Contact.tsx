@@ -9,7 +9,6 @@ import {
   Divider
 } from '@mui/material';
 import { LocationOn, Phone, AccessTime, Email } from '@mui/icons-material';
-import MailSubscribe from './MailSubscribe';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -168,16 +167,6 @@ const Contact: React.FC = () => {
           </Box>
         </Paper>
       </Box>
-
-      <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
-        <MailSubscribe 
-          title="Subscribe To Our Emails"
-          description="Be the first to know about new collections, exclusive offers, and fashion tips."
-          placeholder="Enter your email"
-          maxWidth={500}
-          layout="row"
-        />
-      </Paper>
     </Container>
   );
 };
