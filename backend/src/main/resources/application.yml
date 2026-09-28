@@ -13,3 +13,6 @@ spring:
     enabled: true
 server:
   port: ${PORT:8080}
+app:
+  cors:
+    allowed-origin: ${APP_CORS_ALLOWED_ORIGIN:http://localhost:3000}
