@@ -40,7 +40,6 @@ const theme = createTheme({
 
 function Navigation() {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const { items } = useAppSelector((state) => state.cart);
 
