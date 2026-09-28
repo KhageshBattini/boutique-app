@@ -45,10 +45,10 @@ jobs:
         run: mvn --batch-mode --no-transfer-progress verify
 
   publish:
-    # Only the default branch publishes images, and only after CI passes.
+    # Only the default branch publishes images, after CI passes and the API has a public URL.
     name: Publish Docker images to GHCR
     needs: ci
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && vars.API_BASE_URL != ''
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -56,15 +56,6 @@ jobs:
     steps:
       - name: Check out the source code
         uses: actions/checkout@v7
-
-      - name: Check the production API URL
-        env:
-          API_BASE_URL: ${{ vars.API_BASE_URL }}
-        run: |
-          if [ -z "$API_BASE_URL" ]; then
-            echo "Set the API_BASE_URL repository variable to your deployed API URL, ending in /api."
-            exit 1
-          fi
 
       - name: Prepare lowercase image names
         id: image-name

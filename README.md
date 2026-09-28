@@ -31,7 +31,7 @@ This repository includes an automated workflow at `.github/workflows/ci-cd.yml`.
 
 ### One-time GitHub setup
 
-The workflow needs to know the public URL of your deployed API so the website can call it. In GitHub, open **Settings → Secrets and variables → Actions → Variables → New repository variable** and create:
+The workflow needs to know the public URL of your deployed API so the website can call it. Until you deploy the API and set this variable, the image-publishing job is skipped; the CI build checks still run. In GitHub, open **Settings → Secrets and variables → Actions → Variables → New repository variable** and create:
 
 - Name: `API_BASE_URL`
 - Value: `https://your-api-domain.example/api` (replace this with your actual API URL; keep `/api` at the end)
