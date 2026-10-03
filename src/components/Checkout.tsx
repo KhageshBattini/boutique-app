@@ -392,7 +392,7 @@ const Checkout: React.FC = () => {
 
       <Snackbar
         open={error !== null}
-        autoHideDuration={6000}
+        autoHideDuration={3500}
         onClose={() => setError(null)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >

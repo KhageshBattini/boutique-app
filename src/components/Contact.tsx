@@ -6,9 +6,12 @@ import {
   Paper,
   TextField,
   Button,
-  Divider
+  Divider,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { LocationOn, Phone, AccessTime, Email } from '@mui/icons-material';
+import { api } from '../api';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +20,8 @@ const Contact: React.FC = () => {
     subject: '',
     message: ''
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [notice, setNotice] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -25,11 +30,21 @@ const Contact: React.FC = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    alert('Thank you for your message! We will get back to you soon.');
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    setSubmitting(true);
+    try {
+      const response = await api<{ message: string }>('/contact', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+      setNotice({ message: response.message, severity: 'success' });
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      setNotice({ message: error instanceof Error ? error.message : 'Could not send your message. Please try again.', severity: 'error' });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -156,17 +171,27 @@ const Contact: React.FC = () => {
               type="submit"
               variant="contained"
               fullWidth
+              disabled={submitting}
               sx={{ 
                 mt: 3, 
                 backgroundColor: '#967bb6', 
                 '&:hover': { backgroundColor: '#6746c3' } 
               }}
             >
-              Send Message
+              {submitting ? 'Sending…' : 'Send Message'}
             </Button>
           </Box>
         </Paper>
       </Box>
+      <Snackbar open={Boolean(notice)} autoHideDuration={3500} onClose={() => setNotice(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert
+          onClose={() => setNotice(null)}
+          severity={notice?.severity ?? 'success'}
+          sx={notice?.severity === 'success' ? { backgroundColor: '#967bb6', color: 'white' } : undefined}
+        >
+          {notice?.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

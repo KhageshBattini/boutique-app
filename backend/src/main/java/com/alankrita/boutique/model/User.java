@@ -10,7 +10,7 @@ public class User {
   @Column(name = "password_hash", nullable = false) private String passwordHash;
   @Column(name = "first_name", nullable = false) private String firstName;
   @Column(name = "last_name", nullable = false) private String lastName;
-  @Column(name = "profile_picture", columnDefinition = "TEXT") private String profilePicture;
+  @Column(name = "profile_picture", columnDefinition = "MEDIUMTEXT") private String profilePicture;
   @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt = Instant.now();
   public Long getId() { return id; } public String getEmail() { return email; } public void setEmail(String value) { email = value; }
   public String getPasswordHash() { return passwordHash; } public void setPasswordHash(String value) { passwordHash = value; }

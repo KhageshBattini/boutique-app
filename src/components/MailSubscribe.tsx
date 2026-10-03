@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button, Snackbar, Alert, Typography, SxProps, Theme } from '@mui/material';
+import { api } from '../api';
 
 interface MailSubscribeProps {
   title?: string;
@@ -31,32 +32,36 @@ const MailSubscribe: React.FC<MailSubscribeProps> = ({
   layout = 'row'
 }) => {
   const [email, setEmail] = useState('');
-  const [showToast, setShowToast] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !email.includes('@')) {
       return;
     }
 
-    // Call custom onSubscribe callback if provided
-    if (onSubscribe) {
-      onSubscribe(email);
-    } else {
-      // Default behavior: log to console
-      console.log('Subscribing email:', email);
+    setSubmitting(true);
+    setErrorMessage('');
+    try {
+      const response = await api<{ message: string }>('/subscriptions', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      });
+      onSubscribe?.(email);
+      setEmail('');
+      setSuccessMessage(response.message);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Could not subscribe. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
-    
-    // Clear the email field
-    setEmail('');
-    
-    // Show toast message
-    setShowToast(true);
   };
 
   const handleCloseToast = () => {
-    setShowToast(false);
+    setSuccessMessage('');
   };
 
   return (
@@ -87,6 +92,7 @@ const MailSubscribe: React.FC<MailSubscribeProps> = ({
           fullWidth
           placeholder={placeholder}
           type="email"
+          required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           size="small"
@@ -108,6 +114,7 @@ const MailSubscribe: React.FC<MailSubscribeProps> = ({
         <Button
           type="submit"
           variant="contained"
+          disabled={submitting}
           sx={{ 
             backgroundColor: '#967bb6',
             '&:hover': { backgroundColor: '#6746c3' },
@@ -115,14 +122,14 @@ const MailSubscribe: React.FC<MailSubscribeProps> = ({
             ...buttonSx
           }}
         >
-          {buttonText}
+          {submitting ? 'Subscribing…' : buttonText}
         </Button>
       </Box>
 
       {/* Toast Notification */}
       <Snackbar
-        open={showToast}
-        autoHideDuration={3000}
+        open={Boolean(successMessage)}
+        autoHideDuration={3500}
         onClose={handleCloseToast}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
@@ -131,8 +138,11 @@ const MailSubscribe: React.FC<MailSubscribeProps> = ({
           severity="success"
           sx={{ backgroundColor: '#967bb6', color: 'white' }}
         >
-          Thanks for subscription!
+          {successMessage}
         </Alert>
+      </Snackbar>
+      <Snackbar open={Boolean(errorMessage)} autoHideDuration={3500} onClose={() => setErrorMessage('')} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert onClose={() => setErrorMessage('')} severity="error">{errorMessage}</Alert>
       </Snackbar>
     </Box>
   );

@@ -16,4 +16,7 @@ public final class ApiDtos {
   public record OrderLineRequest(@NotNull @Positive Long productId, @Min(1) int quantity) {}
   public record CreateOrderRequest(@NotEmpty List<@Valid OrderLineRequest> items, @NotBlank String fullName, @NotBlank String address, @NotBlank String city, @Pattern(regexp = "\\d{6}") String zipCode, @NotBlank String countryCode, @Pattern(regexp = "\\d{10}") String mobileNumber) {}
   public record OrderResponse(Long id, BigDecimal total, String status) {}
+  public record ContactMessageRequest(@NotBlank @Size(max = 100) String name, @NotBlank @Email @Size(max = 255) String email, @NotBlank @Size(max = 200) String subject, @NotBlank @Size(max = 5000) String message) {}
+  public record SubscribeRequest(@NotBlank @Email @Size(max = 255) String email) {}
+  public record SubmissionResponse(String message) {}
 }
