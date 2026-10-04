@@ -1,6 +1,6 @@
 import React from 'react';
-import { Container, Typography, Box, Alert, CircularProgress } from '@mui/material';
-import ProductCard from './ProductCard';
+import { Container, Typography, Box } from '@mui/material';
+import ProductCatalog from './ProductCatalog';
 import { useAppSelector } from '../store/hooks';
 
 const Home: React.FC = () => {
@@ -12,19 +12,7 @@ const Home: React.FC = () => {
         <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 4, color: '#967bb6' }}>
           Our Collection
         </Typography>
-        {loading && <Box sx={{ display: 'flex', justifyContent: 'center' }}><CircularProgress /></Box>}
-        {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
-        <Box sx={{ 
-          display: 'grid', 
-          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
-          gap: 4 
-        }}>
-          {products.map((product) => (
-            <Box key={product.id}>
-              <ProductCard product={product} />
-            </Box>
-          ))}
-        </Box>
+        <ProductCatalog products={products} loading={loading} error={error} />
       </Container>
     </Box>
   );

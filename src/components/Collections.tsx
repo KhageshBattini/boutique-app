@@ -1,13 +1,13 @@
 import React from 'react';
 import { Container, Typography, Box, Card, CardMedia, CardContent } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useAppSelector } from '../store/hooks';
 
 interface Collection {
   id: string;
   name: string;
   description: string;
   image: string;
-  itemCount: number;
 }
 
 const collections: Collection[] = [
@@ -15,20 +15,19 @@ const collections: Collection[] = [
     id: 'sarees',
     name: 'Sarees',
     description: 'Beautiful traditional sarees for every occasion',
-    image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&h=400&fit=crop',
-    itemCount: 15
+    image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&h=400&fit=crop'
   },
   {
     id: 'dresses',
     name: 'Dresses',
     description: 'Elegant dresses for every occasion',
-    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&h=400&fit=crop',
-    itemCount: 12
+    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&h=400&fit=crop'
   }
 ];
 
 const Collections: React.FC = () => {
   const navigate = useNavigate();
+  const products = useAppSelector((state) => state.products.items);
 
   const handleCollectionClick = (collectionId: string) => {
     navigate(`/`);
@@ -76,7 +75,7 @@ const Collections: React.FC = () => {
                 {collection.description}
               </Typography>
               <Typography variant="caption" color="primary">
-                {collection.itemCount} items
+                {products.filter((product) => product.category.toLocaleLowerCase() === collection.name.toLocaleLowerCase()).length} items
               </Typography>
             </CardContent>
           </Card>

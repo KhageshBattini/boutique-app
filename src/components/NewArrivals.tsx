@@ -1,6 +1,6 @@
 import React from 'react';
-import { Container, Typography, Box, Chip, Paper, Alert, CircularProgress } from '@mui/material';
-import ProductCard from './ProductCard';
+import { Container, Typography, Box, Chip, Paper } from '@mui/material';
+import ProductCatalog from './ProductCatalog';
 import { useAppSelector } from '../store/hooks';
 
 const NewArrivals: React.FC = () => {
@@ -38,20 +38,12 @@ const NewArrivals: React.FC = () => {
         </Typography>
       </Paper>
 
-      {loading && <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}><CircularProgress /></Box>}
-      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
-
-      <Box sx={{ 
-        display: 'grid', 
-        gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
-        gap: 4 
-      }}>
-        {newArrivals.map((product) => (
-          <Box key={product.id}>
-            <ProductCard product={product} />
-          </Box>
-        ))}
-      </Box>
+      <ProductCatalog
+        products={newArrivals}
+        loading={loading}
+        error={error}
+        emptyMessage="There are no new arrivals matching your search or filters."
+      />
     </Container>
   );
 };
