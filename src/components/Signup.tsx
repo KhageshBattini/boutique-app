@@ -9,9 +9,8 @@ import {
   Alert
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '../store/hooks';
-import { signupStart, signupSuccess, signupFailure } from '../store/slices/authSlice';
-import { api } from '../api';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { registerUser } from '../store/slices/authSlice';
 
 const Signup: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -22,8 +21,9 @@ const Signup: React.FC = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const loading = useAppSelector((state) => state.auth.loading);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -42,17 +42,12 @@ const Signup: React.FC = () => {
       return;
     }
 
-    dispatch(signupStart());
-
-    try {
-      const response = await api<{ token: string; user: { id: number; email: string; firstName: string; lastName: string; profilePicture?: string } }>('/auth/register', { method: 'POST', body: JSON.stringify({ firstName, lastName, email, password }) });
-      localStorage.setItem('authToken', response.token);
-      dispatch(signupSuccess(response.user));
-      navigate('/');
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to create account';
-      dispatch(signupFailure(message)); setError(message);
-    }
+    dispatch(registerUser({ firstName, lastName, email, password }))
+      .unwrap()
+      .then(() => navigate('/'))
+      .catch((err: unknown) => {
+        setError(typeof err === 'string' ? err : err instanceof Error ? err.message : 'Unable to create account');
+      });
   };
 
   return (
@@ -143,9 +138,9 @@ const Signup: React.FC = () => {
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2, backgroundColor: '#967bb6', '&:hover': { backgroundColor: '#6746c3' } }}
-            disabled={false}
+            disabled={loading}
           >
-            Sign Up
+            {loading ? 'Creating Account…' : 'Sign Up'}
           </Button>
           <Typography variant="body2" color="text.secondary" align="center">
             Already have an account?{' '}

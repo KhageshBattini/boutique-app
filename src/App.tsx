@@ -16,8 +16,7 @@ import OurStory from './components/OurStory';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import { useAppSelector, useAppDispatch } from './store/hooks';
-import { api } from './api';
-import { setError, setLoading, setProducts, Product, FALLBACK_PRODUCTS } from './store/slices/productsSlice';
+import { fetchProducts } from './store/slices/productsSlice';
 
 const theme = createTheme({
   palette: {
@@ -126,19 +125,7 @@ function AppContent() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    const loadProducts = async () => {
-      dispatch(setLoading(true));
-      try {
-        dispatch(setProducts(await api<Product[]>('/products')));
-      } catch (err) {
-        console.log('API failed, using fallback products:', err);
-        dispatch(setProducts(FALLBACK_PRODUCTS));
-        dispatch(setError(err instanceof Error ? err.message : 'Unable to load products'));
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
-    loadProducts();
+    dispatch(fetchProducts());
   }, [dispatch]);
 
   return (

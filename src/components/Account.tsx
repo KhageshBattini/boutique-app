@@ -13,14 +13,13 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
-import { logout, updateProfile } from '../store/slices/authSlice';
-import { api } from '../api';
+import { logoutUser, saveProfile } from '../store/slices/authSlice';
 import { Edit as EditIcon, CameraAlt as CameraIcon } from '@mui/icons-material';
 
 const Account: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
+  const { user, loading } = useAppSelector((state) => state.auth);
   
   const [isEditing, setIsEditing] = useState(false);
   const [firstName, setFirstName] = useState(user?.firstName || '');
@@ -43,7 +42,7 @@ const Account: React.FC = () => {
     setIsEditing(!isEditing);
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     setError('');
     setSuccess('');
 
@@ -57,11 +56,16 @@ const Account: React.FC = () => {
       return;
     }
 
-    try {
-      const updated = await api<{ id: number; email: string; firstName: string; lastName: string; profilePicture?: string }>('/auth/me', { method: 'PUT', body: JSON.stringify({ firstName, lastName, email, profilePicture }) });
-      dispatch(updateProfile(updated)); setSuccess('Profile updated successfully!'); setIsEditing(false);
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (err) { setError(err instanceof Error ? err.message : 'Unable to update profile'); }
+    dispatch(saveProfile({ firstName, lastName, email, profilePicture }))
+      .unwrap()
+      .then(() => {
+        setSuccess('Profile updated successfully!');
+        setIsEditing(false);
+        setTimeout(() => setSuccess(''), 3000);
+      })
+      .catch((err: unknown) => {
+        setError(typeof err === 'string' ? err : err instanceof Error ? err.message : 'Unable to update profile');
+      });
   };
 
   const handleProfilePictureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,11 +92,11 @@ const Account: React.FC = () => {
     }
   };
 
-  const handleLogout = async () => {
-    await api<void>('/auth/logout', { method: 'POST' }).catch(() => undefined);
-    localStorage.removeItem('authToken');
-    dispatch(logout());
-    navigate('/login');
+  const handleLogout = () => {
+    dispatch(logoutUser())
+      .unwrap()
+      .then(() => navigate('/login'))
+      .catch(() => navigate('/login'));
   };
 
   if (!user) {
@@ -219,9 +223,10 @@ const Account: React.FC = () => {
                 <Button
                   variant="contained"
                   onClick={handleSave}
+                  disabled={loading}
                   sx={{ backgroundColor: '#967bb6', '&:hover': { backgroundColor: '#6746c3' } }}
                 >
-                  Save Changes
+                  {loading ? 'Saving…' : 'Save Changes'}
                 </Button>
               </Box>
             )}

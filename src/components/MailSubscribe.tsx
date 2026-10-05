@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button, Snackbar, Alert, Typography, SxProps, Theme } from '@mui/material';
-import { api } from '../api';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { subscribeToNewsletter } from '../store/slices/engagementSlice';
 
 interface MailSubscribeProps {
   title?: string;
@@ -33,31 +34,28 @@ const MailSubscribe: React.FC<MailSubscribeProps> = ({
 }) => {
   const [email, setEmail] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const dispatch = useAppDispatch();
+  const submitting = useAppSelector((state) => state.engagement.subscribing);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubscribe = async (e: React.FormEvent) => {
+  const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !email.includes('@')) {
       return;
     }
 
-    setSubmitting(true);
     setErrorMessage('');
-    try {
-      const response = await api<{ message: string }>('/subscriptions', {
-        method: 'POST',
-        body: JSON.stringify({ email }),
+    dispatch(subscribeToNewsletter(email))
+      .unwrap()
+      .then((response) => {
+        onSubscribe?.(email);
+        setEmail('');
+        setSuccessMessage(response.message);
+      })
+      .catch((error: unknown) => {
+        setErrorMessage(typeof error === 'string' ? error : error instanceof Error ? error.message : 'Could not subscribe. Please try again.');
       });
-      onSubscribe?.(email);
-      setEmail('');
-      setSuccessMessage(response.message);
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Could not subscribe. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
   };
 
   const handleCloseToast = () => {

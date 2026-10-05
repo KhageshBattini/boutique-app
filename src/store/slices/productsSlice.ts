@@ -1,4 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { api } from '../../api';
 
 export interface Product {
   id: number;
@@ -97,22 +98,39 @@ const initialState: ProductsState = {
   error: null,
 };
 
+export const fetchProducts = createAsyncThunk<Product[], void, { rejectValue: string }>(
+  'products/fetchAll',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await api<Product[]>('/products');
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Unable to load products');
+    }
+  },
+);
+
 const productsSlice = createSlice({
   name: 'products',
   initialState,
   reducers: {
-    setProducts: (state, action: PayloadAction<Product[]>) => {
-      state.items = action.payload;
-    },
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.loading = action.payload;
-    },
-    setError: (state, action: PayloadAction<string | null>) => {
-      state.error = action.payload;
-    },
+    clearProductsError: (state) => { state.error = null; },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchProducts.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchProducts.fulfilled, (state, action) => {
+        state.items = action.payload;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(fetchProducts.rejected, (state, action) => {
+        state.items = FALLBACK_PRODUCTS;
+        state.loading = false;
+        state.error = action.payload ?? action.error.message ?? 'Unable to load products';
+      });
   },
 });
 
-export const { setProducts, setLoading, setError } = productsSlice.actions;
+export const { clearProductsError } = productsSlice.actions;
 export { FALLBACK_PRODUCTS };
 export default productsSlice.reducer;

@@ -11,7 +11,8 @@ import {
   Alert
 } from '@mui/material';
 import { LocationOn, Phone, AccessTime, Email } from '@mui/icons-material';
-import { api } from '../api';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { sendContactMessage } from '../store/slices/engagementSlice';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -20,7 +21,8 @@ const Contact: React.FC = () => {
     subject: '',
     message: ''
   });
-  const [submitting, setSubmitting] = useState(false);
+  const dispatch = useAppDispatch();
+  const submitting = useAppSelector((state) => state.engagement.sendingMessage);
   const [notice, setNotice] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,21 +32,20 @@ const Contact: React.FC = () => {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
-    try {
-      const response = await api<{ message: string }>('/contact', {
-        method: 'POST',
-        body: JSON.stringify(formData),
+    dispatch(sendContactMessage(formData))
+      .unwrap()
+      .then((response) => {
+        setNotice({ message: response.message, severity: 'success' });
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      })
+      .catch((error: unknown) => {
+        setNotice({
+          message: typeof error === 'string' ? error : error instanceof Error ? error.message : 'Could not send your message. Please try again.',
+          severity: 'error',
+        });
       });
-      setNotice({ message: response.message, severity: 'success' });
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    } catch (error) {
-      setNotice({ message: error instanceof Error ? error.message : 'Could not send your message. Please try again.', severity: 'error' });
-    } finally {
-      setSubmitting(false);
-    }
   };
 
   return (

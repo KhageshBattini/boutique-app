@@ -9,9 +9,8 @@ import {
   Alert
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '../store/hooks';
-import { loginStart, loginSuccess, loginFailure } from '../store/slices/authSlice';
-import { api } from '../api';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { loginUser } from '../store/slices/authSlice';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -19,8 +18,9 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const loading = useAppSelector((state) => state.auth.loading);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -29,17 +29,12 @@ const Login: React.FC = () => {
       return;
     }
 
-    dispatch(loginStart());
-
-    try {
-      const response = await api<{ token: string; user: { id: number; email: string; firstName: string; lastName: string; profilePicture?: string } }>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
-      localStorage.setItem('authToken', response.token);
-      dispatch(loginSuccess(response.user));
-      navigate('/');
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to sign in';
-      dispatch(loginFailure(message)); setError(message);
-    }
+    dispatch(loginUser({ email, password }))
+      .unwrap()
+      .then(() => navigate('/'))
+      .catch((err: unknown) => {
+        setError(typeof err === 'string' ? err : err instanceof Error ? err.message : 'Unable to sign in');
+      });
   };
 
   return (
@@ -96,9 +91,9 @@ const Login: React.FC = () => {
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2, backgroundColor: '#967bb6', '&:hover': { backgroundColor: '#6746c3' } }}
-            disabled={false}
+            disabled={loading}
           >
-            Sign In
+            {loading ? 'Signing In…' : 'Sign In'}
           </Button>
           <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 2 }}>
             Don't have an account?{' '}
