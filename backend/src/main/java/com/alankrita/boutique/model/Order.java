@@ -19,4 +19,5 @@ public class Order {
   public void setCity(String value) { city = value; } public void setZipCode(String value) { zipCode = value; } public void setCountryCode(String value) { countryCode = value; }
   public void setMobileNumber(String value) { mobileNumber = value; } public void setTotal(BigDecimal value) { total = value; }
   public void addItem(OrderItem item) { item.setOrder(this); items.add(item); } public Long getId() { return id; } public BigDecimal getTotal() { return total; }
+  public Instant getCreatedAt() { return createdAt; } public String getStatus() { return status; } public List<OrderItem> getItems() { return items; }
 }

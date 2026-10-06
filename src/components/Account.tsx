@@ -9,12 +9,15 @@ import {
   Avatar,
   IconButton,
   Alert,
-  Divider
+  Divider,
+  Tabs,
+  Tab
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { logoutUser, saveProfile } from '../store/slices/authSlice';
 import { Edit as EditIcon, CameraAlt as CameraIcon } from '@mui/icons-material';
+import Orders from './Orders';
 
 const Account: React.FC = () => {
   const navigate = useNavigate();
@@ -22,6 +25,7 @@ const Account: React.FC = () => {
   const { user, loading } = useAppSelector((state) => state.auth);
   
   const [isEditing, setIsEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState<'profile' | 'orders'>('profile');
   const [firstName, setFirstName] = useState(user?.firstName || '');
   const [lastName, setLastName] = useState(user?.lastName || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -125,7 +129,12 @@ const Account: React.FC = () => {
           My Account
         </Typography>
         <Divider sx={{ mb: 4 }} />
+        <Tabs value={activeTab} onChange={(_, value: 'profile' | 'orders') => setActiveTab(value)} sx={{ mb: 3 }}>
+          <Tab value="profile" label="Profile" />
+          <Tab value="orders" label="Orders" />
+        </Tabs>
 
+        {activeTab === 'orders' ? <Orders /> : <>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
@@ -249,6 +258,7 @@ const Account: React.FC = () => {
             Logout
           </Button>
         </Box>
+        </>}
       </Paper>
     </Container>
   );

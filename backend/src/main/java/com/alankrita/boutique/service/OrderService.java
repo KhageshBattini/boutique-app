@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class OrderService {
@@ -23,5 +24,19 @@ public class OrderService {
       total = total.add(product.getPrice().multiply(BigDecimal.valueOf(line.quantity())));
     }
     order.setTotal(total); Order saved = orders.save(order); return new OrderResponse(saved.getId(), saved.getTotal(), "PLACED");
+  }
+
+  @Transactional(readOnly = true)
+  public List<OrderHistoryResponse> findForUser(User user) {
+    return orders.findAllByUser_IdOrderByCreatedAtDesc(user.getId()).stream()
+        .map(order -> new OrderHistoryResponse(
+            order.getId(),
+            order.getCreatedAt(),
+            order.getStatus(),
+            order.getTotal(),
+            order.getItems().stream()
+                .map(item -> new OrderItemResponse(item.getProductName(), item.getUnitPrice(), item.getQuantity()))
+                .toList()))
+        .toList();
   }
 }

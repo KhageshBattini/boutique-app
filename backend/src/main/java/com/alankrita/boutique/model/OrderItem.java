@@ -12,4 +12,5 @@ public class OrderItem {
   @Column(nullable = false) private int quantity;
   public void setOrder(Order value) { order = value; } public void setProduct(Product value) { product = value; }
   public void setProductName(String value) { productName = value; } public void setUnitPrice(BigDecimal value) { unitPrice = value; } public void setQuantity(int value) { quantity = value; }
+  public String getProductName() { return productName; } public BigDecimal getUnitPrice() { return unitPrice; } public int getQuantity() { return quantity; }
 }
