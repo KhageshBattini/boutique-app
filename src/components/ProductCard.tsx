@@ -1,9 +1,11 @@
-import React from 'react';
-import { Card, CardMedia, CardContent, CardActions, Typography, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Alert, Card, CardMedia, CardContent, CardActions, Typography, Button, IconButton, Snackbar, Tooltip } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { Favorite, FavoriteBorder } from '@mui/icons-material';
 import { Product } from '../store/slices/productsSlice';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { addToCart } from '../store/slices/cartSlice';
+import { addCartItem } from '../store/slices/cartSlice';
+import { addProductToWishlist, removeProductFromWishlist } from '../store/slices/wishlistSlice';
 
 interface ProductCardProps {
   product: Product;
@@ -13,16 +15,35 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { items } = useAppSelector((state) => state.cart);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { items: wishlist, mutating } = useAppSelector((state) => state.wishlist);
+  const [notice, setNotice] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
   
   const isInCart = items.some(item => item.id === product.id);
+  const isInWishlist = wishlist.some(item => item.id === product.id);
 
   const handleAddToCart = () => {
-    dispatch(addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-    }));
+    dispatch(addCartItem({ product, persist: isAuthenticated })).unwrap()
+      .catch((error: unknown) => setNotice({
+        message: typeof error === 'string' ? error : 'Could not add this item to your cart.',
+        severity: 'error',
+      }));
+  };
+
+  const handleWishlist = () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    const request = isInWishlist
+      ? dispatch(removeProductFromWishlist(product.id)).unwrap().then(() => 'Removed from wishlist')
+      : dispatch(addProductToWishlist(product.id)).unwrap().then(() => 'Added to wishlist');
+    request.then((message) => setNotice({ message, severity: 'success' }))
+      .catch((error: unknown) => setNotice({
+        message: typeof error === 'string' ? error : 'Could not update your wishlist.',
+        severity: 'error',
+      }));
   };
 
   const handleGoToCart = () => {
@@ -50,6 +71,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </Typography>
       </CardContent>
       <CardActions>
+        <Tooltip title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}>
+          <IconButton aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'} onClick={handleWishlist} disabled={mutating}>
+            {isInWishlist ? <Favorite color="error" /> : <FavoriteBorder />}
+          </IconButton>
+        </Tooltip>
         <Button 
           size="small" 
           variant="contained" 
@@ -59,6 +85,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {isInCart ? 'Go to Cart' : 'Add to Cart'}
         </Button>
       </CardActions>
+      <Snackbar open={Boolean(notice)} autoHideDuration={3500} onClose={() => setNotice(null)}>
+        <Alert severity={notice?.severity ?? 'success'} onClose={() => setNotice(null)}>{notice?.message}</Alert>
+      </Snackbar>
     </Card>
   );
 };

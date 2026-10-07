@@ -17,6 +17,7 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import { useAppSelector, useAppDispatch } from './store/hooks';
 import { fetchProducts } from './store/slices/productsSlice';
+import { fetchWishlist } from './store/slices/wishlistSlice';
 
 const theme = createTheme({
   palette: {
@@ -123,10 +124,15 @@ function Navigation() {
 
 function AppContent() {
   const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (isAuthenticated) dispatch(fetchWishlist());
+  }, [dispatch, isAuthenticated]);
 
   return (
     <Router>

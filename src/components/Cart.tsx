@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Drawer,
   List,
@@ -15,7 +15,10 @@ import {
 import { Delete as DeleteIcon, Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
-import { removeFromCart, updateQuantity, clearCart } from '../store/slices/cartSlice';
+import { clearPersistedCart, deleteCartItem, removeFromCart, updateCartItemQuantity } from '../store/slices/cartSlice';
+import type { CartItem } from '../store/slices/cartSlice';
+import { moveCartItemToWishlist } from '../store/slices/wishlistSlice';
+import CartItemRemovalDialog from './CartItemRemovalDialog';
 
 interface CartProps {
   open: boolean;
@@ -26,19 +29,60 @@ const Cart: React.FC<CartProps> = ({ open, onClose }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { items, total } = useAppSelector((state) => state.cart);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const [itemToRemove, setItemToRemove] = useState<CartItem | null>(null);
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionError, setActionError] = useState('');
 
-  const handleRemove = (id: number) => {
-    dispatch(removeFromCart(id));
+  const handleRemove = (item: CartItem) => {
+    setActionError('');
+    setItemToRemove(item);
   };
 
   const handleUpdateQuantity = (id: number, quantity: number) => {
     if (quantity > 0) {
-      dispatch(updateQuantity({ id, quantity }));
+      dispatch(updateCartItemQuantity({ id, quantity, persist: isAuthenticated })).unwrap()
+        .catch((reason: unknown) => setActionError(typeof reason === 'string' ? reason : 'Unable to update cart quantity'));
     }
   };
 
   const handleClearCart = () => {
-    dispatch(clearCart());
+    dispatch(clearPersistedCart(isAuthenticated)).unwrap()
+      .catch((reason: unknown) => setActionError(typeof reason === 'string' ? reason : 'Unable to clear your cart.'));
+  };
+
+  const confirmRemove = () => {
+    if (!itemToRemove) return;
+    setActionBusy(true);
+    dispatch(deleteCartItem({ id: itemToRemove.id, persist: isAuthenticated }))
+      .unwrap()
+      .then(() => setItemToRemove(null))
+      .catch((reason: unknown) => setActionError(typeof reason === 'string' ? reason : 'Unable to remove this item from your cart.'))
+      .finally(() => setActionBusy(false));
+  };
+
+  const moveToWishlist = () => {
+    if (!itemToRemove) return;
+    if (!isAuthenticated) {
+      setActionError('Sign in to use your wishlist.');
+      return;
+    }
+    setActionBusy(true);
+    dispatch(moveCartItemToWishlist(itemToRemove.id))
+      .unwrap()
+      .then(() => {
+        dispatch(removeFromCart(itemToRemove.id));
+        setItemToRemove(null);
+      })
+      .catch((reason: unknown) => setActionError(typeof reason === 'string' ? reason : 'Unable to move this item to your wishlist.'))
+      .finally(() => setActionBusy(false));
+  };
+
+  const closeRemoveDialog = () => {
+    if (!actionBusy) {
+      setItemToRemove(null);
+      setActionError('');
+    }
   };
 
   return (
@@ -71,7 +115,7 @@ const Cart: React.FC<CartProps> = ({ open, onClose }) => {
               <React.Fragment key={item.id}>
                 <ListItem
                   secondaryAction={
-                    <IconButton edge="end" onClick={() => handleRemove(item.id)}>
+                    <IconButton edge="end" onClick={() => handleRemove(item)}>
                       <DeleteIcon />
                     </IconButton>
                   }
@@ -140,6 +184,14 @@ const Cart: React.FC<CartProps> = ({ open, onClose }) => {
           </Box>
         </>
       )}
+      <CartItemRemovalDialog
+        item={itemToRemove}
+        busy={actionBusy}
+        error={actionError}
+        onClose={closeRemoveDialog}
+        onRemove={confirmRemove}
+        onMoveToWishlist={moveToWishlist}
+      />
     </Drawer>
   );
 };

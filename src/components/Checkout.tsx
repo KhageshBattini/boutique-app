@@ -28,8 +28,11 @@ import {
 import { Delete as DeleteIcon, Add as AddIcon, Remove as RemoveIcon, Close as CloseIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
-import { removeFromCart, updateQuantity, clearCart } from '../store/slices/cartSlice';
+import { clearCart, deleteCartItem, removeFromCart, updateCartItemQuantity } from '../store/slices/cartSlice';
+import type { CartItem } from '../store/slices/cartSlice';
+import { moveCartItemToWishlist } from '../store/slices/wishlistSlice';
 import { placeOrder } from '../store/slices/orderSlice';
+import CartItemRemovalDialog from './CartItemRemovalDialog';
 
 interface ShippingInfo {
   fullName: string;
@@ -46,6 +49,9 @@ const Checkout: React.FC = () => {
   const { items, total } = useAppSelector((state) => state.cart);
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   const placingOrder = useAppSelector((state) => state.orders.placing);
+  const [itemToRemove, setItemToRemove] = useState<CartItem | null>(null);
+  const [cartActionBusy, setCartActionBusy] = useState(false);
+  const [cartActionError, setCartActionError] = useState('');
   const [activeStep, setActiveStep] = useState(0);
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     fullName: user ? `${user.firstName} ${user.lastName}` : '',
@@ -67,13 +73,48 @@ const Checkout: React.FC = () => {
 
   const steps = ['Review Cart', 'Shipping Information', 'Confirmation'];
 
-  const handleRemove = (id: number) => {
-    dispatch(removeFromCart(id));
+  const handleRemove = (item: CartItem) => {
+    setCartActionError('');
+    setItemToRemove(item);
   };
 
   const handleUpdateQuantity = (id: number, quantity: number) => {
     if (quantity > 0) {
-      dispatch(updateQuantity({ id, quantity }));
+      dispatch(updateCartItemQuantity({ id, quantity, persist: isAuthenticated }))
+        .unwrap()
+        .catch((reason: unknown) => setError(typeof reason === 'string' ? reason : 'Unable to update cart quantity'));
+    }
+  };
+
+  const confirmRemove = () => {
+    if (!itemToRemove) return;
+    setCartActionBusy(true);
+    setCartActionError('');
+    dispatch(deleteCartItem({ id: itemToRemove.id, persist: isAuthenticated }))
+      .unwrap()
+      .then(() => setItemToRemove(null))
+      .catch((reason: unknown) => setCartActionError(typeof reason === 'string' ? reason : 'Unable to remove this item from your cart.'))
+      .finally(() => setCartActionBusy(false));
+  };
+
+  const moveToWishlist = () => {
+    if (!itemToRemove) return;
+    setCartActionBusy(true);
+    setCartActionError('');
+    dispatch(moveCartItemToWishlist(itemToRemove.id))
+      .unwrap()
+      .then(() => {
+        dispatch(removeFromCart(itemToRemove.id));
+        setItemToRemove(null);
+      })
+      .catch((reason: unknown) => setCartActionError(typeof reason === 'string' ? reason : 'Unable to move this item to your wishlist.'))
+      .finally(() => setCartActionBusy(false));
+  };
+
+  const closeRemoveDialog = () => {
+    if (!cartActionBusy) {
+      setItemToRemove(null);
+      setCartActionError('');
     }
   };
 
@@ -212,7 +253,7 @@ const Checkout: React.FC = () => {
                 <React.Fragment key={item.id}>
                   <ListItem
                     secondaryAction={
-                      <IconButton edge="end" onClick={() => handleRemove(item.id)}>
+                      <IconButton edge="end" onClick={() => handleRemove(item)}>
                         <DeleteIcon />
                       </IconButton>
                     }
@@ -418,6 +459,14 @@ const Checkout: React.FC = () => {
           {error}
         </Alert>
       </Snackbar>
+      <CartItemRemovalDialog
+        item={itemToRemove}
+        busy={cartActionBusy}
+        error={cartActionError}
+        onClose={closeRemoveDialog}
+        onRemove={confirmRemove}
+        onMoveToWishlist={moveToWishlist}
+      />
     </Container>
   );
 };
