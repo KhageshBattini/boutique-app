@@ -43,6 +43,11 @@ public class ShoppingListController {
     shoppingLists.addToCart(auth.authenticatedUser(token), productId);
   }
 
+  @GetMapping("/cart")
+  public List<CartItemResponse> cart(@RequestHeader(value = "Authorization", required = false) String token) {
+    return shoppingLists.cart(auth.authenticatedUser(token));
+  }
+
   @PutMapping("/cart/items/{productId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void updateCartQuantity(@RequestHeader(value = "Authorization", required = false) String token, @PathVariable Long productId, @Valid @RequestBody CartQuantityRequest request) {

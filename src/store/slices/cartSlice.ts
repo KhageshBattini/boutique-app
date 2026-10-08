@@ -30,6 +30,14 @@ const initialState: CartState = {
   total: 0,
 };
 
+export const fetchCart = createAsyncThunk<CartItem[]>(
+  'cart/fetch',
+  async () => {
+    const items = await api<Array<Omit<CartItem, 'id'> & { productId: number }>>('/cart');
+    return items.map(({ productId, ...item }) => ({ id: productId, ...item }));
+  },
+);
+
 export const addCartItem = createAsyncThunk<CartItem, AddCartItemRequest>(
   'cart/addItem',
   async ({ product, persist }) => {
@@ -118,6 +126,10 @@ const cartSlice = createSlice({
       .addCase(clearPersistedCart.fulfilled, (state) => {
         state.items = [];
         state.total = 0;
+      })
+      .addCase(fetchCart.fulfilled, (state, action) => {
+        state.items = action.payload;
+        state.total = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
       });
   },
 });

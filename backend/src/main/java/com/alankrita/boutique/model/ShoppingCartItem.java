@@ -16,4 +16,5 @@ public class ShoppingCartItem {
   public ShoppingCartItem(User user, Product product) { this.user = user; this.product = product; }
   public int getQuantity() { return quantity; }
   public void setQuantity(int value) { quantity = value; }
+  public Product getProduct() { return product; }
 }

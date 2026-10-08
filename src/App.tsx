@@ -18,6 +18,7 @@ import Footer from './components/Footer';
 import { useAppSelector, useAppDispatch } from './store/hooks';
 import { fetchProducts } from './store/slices/productsSlice';
 import { fetchWishlist } from './store/slices/wishlistSlice';
+import { clearCart, fetchCart } from './store/slices/cartSlice';
 
 const theme = createTheme({
   palette: {
@@ -131,7 +132,12 @@ function AppContent() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (isAuthenticated) dispatch(fetchWishlist());
+    if (isAuthenticated) {
+      dispatch(fetchWishlist());
+      dispatch(fetchCart());
+    } else {
+      dispatch(clearCart());
+    }
   }, [dispatch, isAuthenticated]);
 
   return (

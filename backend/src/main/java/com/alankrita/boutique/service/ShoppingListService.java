@@ -1,5 +1,6 @@
 package com.alankrita.boutique.service;
 
+import com.alankrita.boutique.dto.ApiDtos.CartItemResponse;
 import com.alankrita.boutique.dto.ApiDtos.ProductResponse;
 import com.alankrita.boutique.model.*;
 import com.alankrita.boutique.repository.*;
@@ -25,6 +26,14 @@ public class ShoppingListService {
   public List<ProductResponse> wishlist(User user) {
     return wishlistItems.findAllByUser_IdOrderByIdDesc(user.getId()).stream()
         .map(item -> toResponse(item.getProduct())).toList();
+  }
+
+  @Transactional(readOnly = true)
+  public List<CartItemResponse> cart(User user) {
+    return cartItems.findAllByUser_Id(user.getId()).stream()
+        .map(item -> new CartItemResponse(item.getProduct().getId(), item.getProduct().getName(),
+            item.getProduct().getPrice(), item.getQuantity(), item.getProduct().getImageUrl()))
+        .toList();
   }
 
   @Transactional
