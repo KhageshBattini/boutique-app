@@ -32,7 +32,7 @@ public class ShoppingListService {
   public List<CartItemResponse> cart(User user) {
     return cartItems.findAllByUser_Id(user.getId()).stream()
         .map(item -> new CartItemResponse(item.getProduct().getId(), item.getProduct().getName(),
-            item.getProduct().getPrice(), item.getQuantity(), item.getProduct().getImageUrl()))
+            item.getProduct().getPrice(), item.getProduct().getImageUrl(), item.getQuantity()))
         .toList();
   }
 

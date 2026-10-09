@@ -6,10 +6,13 @@ import { fetchMyOrders } from '../store/slices/orderSlice';
 const Orders: React.FC = () => {
   const dispatch = useAppDispatch();
   const { orders, loadingHistory, historyError } = useAppSelector((state) => state.orders);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   useEffect(() => {
-    dispatch(fetchMyOrders());
-  }, [dispatch]);
+    if (isAuthenticated) dispatch(fetchMyOrders());
+  }, [dispatch, isAuthenticated]);
+
+  if (!isAuthenticated) return <Alert severity="info">Please sign in to view your orders.</Alert>;
 
   if (loadingHistory && orders.length === 0) {
     return <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}><CircularProgress /></Box>;

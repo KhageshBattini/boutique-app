@@ -1,14 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { CssBaseline, AppBar, Toolbar, Typography, IconButton, Badge, Box, Button, Tooltip, Avatar } from '@mui/material';
-import { ShoppingCart as ShoppingCartIcon, Login as LoginIcon, AccountCircle } from '@mui/icons-material';
+import { CssBaseline, AppBar, Toolbar, Typography, IconButton, Badge, Box, Button, Tooltip, Avatar, Menu, MenuItem, ListItemIcon } from '@mui/material';
+import { ShoppingCart as ShoppingCartIcon, Login as LoginIcon, AccountCircle, FavoriteBorder, ReceiptLong } from '@mui/icons-material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { store } from './store';
 import Home from './components/Home';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import Account from './components/Account';
+import Orders from './components/Orders';
+import Wishlist from './components/Wishlist';
 import Checkout from './components/Checkout';
 import Collections from './components/Collections';
 import NewArrivals from './components/NewArrivals';
@@ -43,6 +45,7 @@ function Navigation() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const { items } = useAppSelector((state) => state.cart);
+  const [profileMenuAnchor, setProfileMenuAnchor] = useState<HTMLElement | null>(null);
 
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -83,7 +86,12 @@ function Navigation() {
                   edge="end"
                   color="inherit"
                   sx={{ mr: 1 }}
-                  onClick={() => navigate('/account')}
+                  id="profile-menu-button"
+                  aria-label="Open profile menu"
+                  aria-controls={profileMenuAnchor ? 'profile-menu' : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={Boolean(profileMenuAnchor)}
+                  onClick={(event) => setProfileMenuAnchor(event.currentTarget)}
                 >
                   {user?.profilePicture ? (
                     <Avatar
@@ -96,6 +104,25 @@ function Navigation() {
                   )}
                 </IconButton>
               </Tooltip>
+              <Menu
+                id="profile-menu"
+                anchorEl={profileMenuAnchor}
+                open={Boolean(profileMenuAnchor)}
+                onClose={() => setProfileMenuAnchor(null)}
+              >
+                <MenuItem onClick={() => { setProfileMenuAnchor(null); navigate('/account'); }}>
+                  <ListItemIcon><AccountCircle fontSize="small" /></ListItemIcon>
+                  Account
+                </MenuItem>
+                <MenuItem onClick={() => { setProfileMenuAnchor(null); navigate('/orders'); }}>
+                  <ListItemIcon><ReceiptLong fontSize="small" /></ListItemIcon>
+                  Orders
+                </MenuItem>
+                <MenuItem onClick={() => { setProfileMenuAnchor(null); navigate('/wishlist'); }}>
+                  <ListItemIcon><FavoriteBorder fontSize="small" /></ListItemIcon>
+                  Wishlist
+                </MenuItem>
+              </Menu>
             </>
           ) : (
             <Button
@@ -150,6 +177,8 @@ function AppContent() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/collections" element={<Collections />} />
             <Route path="/new-arrivals" element={<NewArrivals />} />

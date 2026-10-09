@@ -23,6 +23,8 @@ const Wishlist: React.FC = () => {
   const [notice, setNotice] = useState('');
   const [noticeIsError, setNoticeIsError] = useState(false);
 
+  if (!isAuthenticated) return <Alert severity="info">Please sign in to view your wishlist.</Alert>;
+
   const handleRemove = (productId: number) => {
     dispatch(removeProductFromWishlist(productId)).unwrap()
       .then(() => {

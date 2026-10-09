@@ -25,6 +25,11 @@ public class ShoppingListController {
     return shoppingLists.wishlist(auth.authenticatedUser(token));
   }
 
+  @GetMapping("/cart")
+  public List<CartItemResponse> cart(@RequestHeader(value = "Authorization", required = false) String token) {
+    return shoppingLists.cart(auth.authenticatedUser(token));
+  }
+
   @PostMapping("/wishlist/items/{productId}")
   @ResponseStatus(HttpStatus.CREATED)
   public ProductResponse addToWishlist(@RequestHeader(value = "Authorization", required = false) String token, @PathVariable Long productId) {
@@ -41,11 +46,6 @@ public class ShoppingListController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void addToCart(@RequestHeader(value = "Authorization", required = false) String token, @PathVariable Long productId) {
     shoppingLists.addToCart(auth.authenticatedUser(token), productId);
-  }
-
-  @GetMapping("/cart")
-  public List<CartItemResponse> cart(@RequestHeader(value = "Authorization", required = false) String token) {
-    return shoppingLists.cart(auth.authenticatedUser(token));
   }
 
   @PutMapping("/cart/items/{productId}")
