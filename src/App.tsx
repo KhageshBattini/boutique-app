@@ -45,6 +45,7 @@ function Navigation() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const { items } = useAppSelector((state) => state.cart);
+  const wishlistItems = useAppSelector((state) => state.wishlist.items);
   const [profileMenuAnchor, setProfileMenuAnchor] = useState<HTMLElement | null>(null);
 
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -134,16 +135,31 @@ function Navigation() {
             </Button>
           )}
           
-          <IconButton
-            size="large"
-            edge="end"
-            color="inherit"
-            onClick={() => navigate('/checkout')}
-          >
-            <Badge badgeContent={cartItemCount} color="secondary">
-              <ShoppingCartIcon />
-            </Badge>
-          </IconButton>
+          <Tooltip title="Wishlist" arrow>
+            <IconButton
+              size="large"
+              color="inherit"
+              aria-label="Open wishlist"
+              onClick={() => navigate('/wishlist')}
+            >
+              <Badge badgeContent={wishlistItems.length} color="secondary">
+                <FavoriteBorder />
+              </Badge>
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Shopping cart" arrow>
+            <IconButton
+              size="large"
+              edge="end"
+              color="inherit"
+              aria-label="Open shopping cart"
+              onClick={() => navigate('/checkout')}
+            >
+              <Badge badgeContent={cartItemCount} color="secondary">
+                <ShoppingCartIcon />
+              </Badge>
+            </IconButton>
+          </Tooltip>
         </Box>
       </Toolbar>
     </AppBar>
