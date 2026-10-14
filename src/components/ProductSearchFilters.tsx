@@ -3,24 +3,19 @@ import {
   Box,
   Button,
   FormControl,
-  InputAdornment,
   InputLabel,
   MenuItem,
   Select,
-  TextField,
 } from '@mui/material';
-import { Search as SearchIcon } from '@mui/icons-material';
 
 export type ProductSort = 'featured' | 'price-asc' | 'price-desc' | 'name';
 export type ProductPriceRange = 'all' | 'under-5000' | '5000-10000' | 'over-10000';
 
 interface ProductSearchFiltersProps {
-  search: string;
   category: string;
   priceRange: ProductPriceRange;
   sort: ProductSort;
   categories: string[];
-  onSearchChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
   onPriceRangeChange: (value: ProductPriceRange) => void;
   onSortChange: (value: ProductSort) => void;
@@ -29,12 +24,10 @@ interface ProductSearchFiltersProps {
 }
 
 const ProductSearchFilters: React.FC<ProductSearchFiltersProps> = ({
-  search,
   category,
   priceRange,
   sort,
   categories,
-  onSearchChange,
   onCategoryChange,
   onPriceRangeChange,
   onSortChange,
@@ -44,7 +37,7 @@ const ProductSearchFilters: React.FC<ProductSearchFiltersProps> = ({
   <Box
     sx={{
       display: 'grid',
-      gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: '2fr 1fr 1fr 1fr auto' },
+      gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: '1fr 1fr 1fr auto' },
       gap: 2,
       alignItems: 'center',
       mb: 3,
@@ -55,23 +48,6 @@ const ProductSearchFilters: React.FC<ProductSearchFiltersProps> = ({
       backgroundColor: 'background.paper',
     }}
   >
-    <TextField
-      fullWidth
-      size="small"
-      label="Search products"
-      placeholder="Name, category, or description"
-      value={search}
-      onChange={(event) => onSearchChange(event.target.value)}
-      slotProps={{
-        input: {
-        startAdornment: (
-          <InputAdornment position="start">
-            <SearchIcon fontSize="small" />
-          </InputAdornment>
-        ),
-        },
-      }}
-    />
     <FormControl fullWidth size="small">
       <InputLabel id="product-category-label">Category</InputLabel>
       <Select labelId="product-category-label" value={category} label="Category" onChange={(event) => onCategoryChange(event.target.value)}>

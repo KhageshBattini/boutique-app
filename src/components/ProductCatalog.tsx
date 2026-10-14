@@ -1,8 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Box, CircularProgress, Typography } from '@mui/material';
 import ProductCard from './ProductCard';
 import ProductSearchFilters, { ProductPriceRange, ProductSort } from './ProductSearchFilters';
 import { Product } from '../store/slices/productsSlice';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { setSearchQuery } from '../store/slices/productsSlice';
 
 interface ProductCatalogProps {
   products: Product[];
@@ -12,10 +14,19 @@ interface ProductCatalogProps {
 }
 
 const ProductCatalog: React.FC<ProductCatalogProps> = ({ products, loading, error, emptyMessage = 'No products match your search or filters.' }) => {
-  const [search, setSearch] = useState('');
+  const dispatch = useAppDispatch();
+  const search = useAppSelector((state) => state.products.searchQuery);
   const [category, setCategory] = useState('all');
   const [priceRange, setPriceRange] = useState<ProductPriceRange>('all');
   const [sort, setSort] = useState<ProductSort>('featured');
+
+  useEffect(() => {
+    if (!search.trim()) {
+      setCategory('all');
+      setPriceRange('all');
+      setSort('featured');
+    }
+  }, [search]);
 
   const categories = useMemo(
     () => Array.from(new Set(products.map((product) => product.category))).sort((a, b) => a.localeCompare(b)),
@@ -41,9 +52,9 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ products, loading, erro
     return matchingProducts;
   }, [products, search, category, priceRange, sort]);
 
-  const hasActiveFilters = Boolean(search.trim()) || category !== 'all' || priceRange !== 'all' || sort !== 'featured';
+  const hasActiveFilters = category !== 'all' || priceRange !== 'all' || sort !== 'featured';
   const clearFilters = () => {
-    setSearch('');
+    dispatch(setSearchQuery(''));
     setCategory('all');
     setPriceRange('all');
     setSort('featured');
@@ -51,19 +62,19 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ products, loading, erro
 
   return (
     <>
-      <ProductSearchFilters
-        search={search}
-        category={category}
-        priceRange={priceRange}
-        sort={sort}
-        categories={categories}
-        onSearchChange={setSearch}
-        onCategoryChange={setCategory}
-        onPriceRangeChange={setPriceRange}
-        onSortChange={setSort}
-        onClear={clearFilters}
-        hasActiveFilters={hasActiveFilters}
-      />
+      {search.trim() && (
+        <ProductSearchFilters
+          category={category}
+          priceRange={priceRange}
+          sort={sort}
+          categories={categories}
+          onCategoryChange={setCategory}
+          onPriceRangeChange={setPriceRange}
+          onSortChange={setSort}
+          onClear={clearFilters}
+          hasActiveFilters={hasActiveFilters}
+        />
+      )}
 
       {loading && <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}><CircularProgress /></Box>}
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}

@@ -15,6 +15,7 @@ interface ProductsState {
   items: Product[];
   loading: boolean;
   error: string | null;
+  searchQuery: string;
 }
 
 const FALLBACK_PRODUCTS: Product[] = [
@@ -96,6 +97,7 @@ const initialState: ProductsState = {
   items: [],
   loading: false,
   error: null,
+  searchQuery: '',
 };
 
 export const fetchProducts = createAsyncThunk<Product[], void, { rejectValue: string }>(
@@ -114,6 +116,7 @@ const productsSlice = createSlice({
   initialState,
   reducers: {
     clearProductsError: (state) => { state.error = null; },
+    setSearchQuery: (state, action: { payload: string }) => { state.searchQuery = action.payload; },
   },
   extraReducers: (builder) => {
     builder
@@ -131,6 +134,6 @@ const productsSlice = createSlice({
   },
 });
 
-export const { clearProductsError } = productsSlice.actions;
+export const { clearProductsError, setSearchQuery } = productsSlice.actions;
 export { FALLBACK_PRODUCTS };
 export default productsSlice.reducer;

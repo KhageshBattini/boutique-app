@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { CssBaseline, AppBar, Toolbar, Typography, IconButton, Badge, Box, Button, Tooltip, Avatar, Menu, MenuItem, ListItemIcon } from '@mui/material';
-import { ShoppingCart as ShoppingCartIcon, Login as LoginIcon, AccountCircle, FavoriteBorder, ReceiptLong } from '@mui/icons-material';
+import { CssBaseline, AppBar, Toolbar, Typography, IconButton, Badge, Box, Button, Tooltip, Avatar, Menu, MenuItem, ListItemIcon, TextField, InputAdornment } from '@mui/material';
+import { ShoppingCart as ShoppingCartIcon, Login as LoginIcon, AccountCircle, FavoriteBorder, ReceiptLong, Search as SearchIcon, Clear as ClearIcon } from '@mui/icons-material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { store } from './store';
 import Home from './components/Home';
@@ -18,7 +18,7 @@ import OurStory from './components/OurStory';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import { useAppSelector, useAppDispatch } from './store/hooks';
-import { fetchProducts } from './store/slices/productsSlice';
+import { fetchProducts, setSearchQuery } from './store/slices/productsSlice';
 import { fetchWishlist } from './store/slices/wishlistSlice';
 import { clearCart, fetchCart } from './store/slices/cartSlice';
 
@@ -43,17 +43,23 @@ const theme = createTheme({
 
 function Navigation() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const { items } = useAppSelector((state) => state.cart);
   const wishlistItems = useAppSelector((state) => state.wishlist.items);
+  const searchQuery = useAppSelector((state) => state.products.searchQuery);
   const [profileMenuAnchor, setProfileMenuAnchor] = useState<HTMLElement | null>(null);
 
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const submitSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    navigate('/');
+  };
 
   return (
     <AppBar position="static" sx={{ backgroundColor: '#967bb6' }}>
       <Toolbar sx={{ flexWrap: 'wrap' }}>
-        <Box sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={() => navigate('/')}>
+        <Box sx={{ flexGrow: { xs: 1, md: 0 }, minWidth: 170, cursor: 'pointer' }} onClick={() => navigate('/')}>
           <Typography variant="h6" component="div">
             ALANKRITA
           </Typography>
@@ -61,8 +67,31 @@ function Navigation() {
             The Art of Adornment
           </Typography>
         </Box>
+
+        <Box component="form" onSubmit={submitSearch} sx={{ order: { xs: 3, md: 0 }, flex: { xs: '1 0 100%', md: '1 1 240px' }, maxWidth: { md: 330 }, mx: { md: 3 } }}>
+          <TextField
+            fullWidth
+            size="small"
+            value={searchQuery}
+            onChange={(event) => dispatch(setSearchQuery(event.target.value))}
+            placeholder="Search products"
+            aria-label="Search products"
+            sx={{ '& .MuiOutlinedInput-root': { color: 'white', borderRadius: 5, backgroundColor: 'rgba(255,255,255,0.12)', '& fieldset': { borderColor: 'rgba(255,255,255,0.55)' }, '&:hover fieldset': { borderColor: 'white' } }, '& input::placeholder': { color: 'rgba(255,255,255,0.8)', opacity: 1 } }}
+            slotProps={{
+              input: {
+                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: 'white' }} /></InputAdornment>,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {searchQuery && <IconButton size="small" aria-label="Clear search" onClick={() => dispatch(setSearchQuery(''))} sx={{ color: 'white' }}><ClearIcon fontSize="small" /></IconButton>}
+                    <IconButton type="submit" size="small" aria-label="Search" sx={{ color: 'white' }}><SearchIcon fontSize="small" /></IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+        </Box>
         
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', ml: { md: 'auto' } }}>
           <Button color="inherit" onClick={() => navigate('/')}>
             Home
           </Button>
