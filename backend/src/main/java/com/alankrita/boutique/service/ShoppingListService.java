@@ -94,6 +94,6 @@ public class ShoppingListService {
 
   private ProductResponse toResponse(Product product) {
     return new ProductResponse(product.getId(), product.getName(), product.getPrice(), product.getDescription(),
-        product.getImageUrl(), product.getCategory(), product.isNewArrival());
+        product.getImageUrl(), product.getImages(), product.getCategory(), product.isNewArrival());
   }
 }

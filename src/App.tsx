@@ -16,6 +16,7 @@ import Collections from './components/Collections';
 import NewArrivals from './components/NewArrivals';
 import OurStory from './components/OurStory';
 import Contact from './components/Contact';
+import ProductDetails from './components/ProductDetails';
 import Footer from './components/Footer';
 import { useAppSelector, useAppDispatch } from './store/hooks';
 import { fetchProducts, setSearchQuery } from './store/slices/productsSlice';
@@ -219,6 +220,7 @@ function AppContent() {
         <Box sx={{ flexGrow: 1 }}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/products/:productId" element={<ProductDetails />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/account" element={<Account />} />

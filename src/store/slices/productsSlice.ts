@@ -7,6 +7,7 @@ export interface Product {
   price: number;
   description: string;
   image: string;
+  images?: string[];
   category: string;
   newArrival: boolean;
 }
@@ -16,6 +17,9 @@ interface ProductsState {
   loading: boolean;
   error: string | null;
   searchQuery: string;
+  selectedProduct: Product | null;
+  detailLoading: boolean;
+  detailError: string | null;
 }
 
 const FALLBACK_PRODUCTS: Product[] = [
@@ -98,6 +102,9 @@ const initialState: ProductsState = {
   loading: false,
   error: null,
   searchQuery: '',
+  selectedProduct: null,
+  detailLoading: false,
+  detailError: null,
 };
 
 export const fetchProducts = createAsyncThunk<Product[], void, { rejectValue: string }>(
@@ -107,6 +114,17 @@ export const fetchProducts = createAsyncThunk<Product[], void, { rejectValue: st
       return await api<Product[]>('/products');
     } catch (error) {
       return rejectWithValue(error instanceof Error ? error.message : 'Unable to load products');
+    }
+  },
+);
+
+export const fetchProductById = createAsyncThunk<Product, number, { rejectValue: string }>(
+  'products/fetchById',
+  async (productId, { rejectWithValue }) => {
+    try {
+      return await api<Product>(`/products/${productId}`);
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Unable to load this product');
     }
   },
 );
@@ -130,6 +148,21 @@ const productsSlice = createSlice({
         state.items = FALLBACK_PRODUCTS;
         state.loading = false;
         state.error = action.payload ?? action.error.message ?? 'Unable to load products';
+      })
+      .addCase(fetchProductById.pending, (state) => {
+        state.selectedProduct = null;
+        state.detailLoading = true;
+        state.detailError = null;
+      })
+      .addCase(fetchProductById.fulfilled, (state, action) => {
+        state.selectedProduct = action.payload;
+        state.detailLoading = false;
+        state.detailError = null;
+      })
+      .addCase(fetchProductById.rejected, (state, action) => {
+        state.selectedProduct = null;
+        state.detailLoading = false;
+        state.detailError = action.payload ?? action.error.message ?? 'Unable to load this product';
       });
   },
 });
